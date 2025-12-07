@@ -1,4 +1,4 @@
-name: Create VPS (Auto Restart)
+name: Create VPS
 
 on:
   workflow_dispatch:
@@ -8,12 +8,13 @@ on:
 env:
   VPS_NAME: vps-project-1765089897256
   TMATE_SERVER: nyc1.tmate.io
-  GITHUB_TOKEN_VPS: ${{ secrets.GH_TOKEN }}
+  GITHUB_TOKEN_VPS: ${{ secrets.GITHUB_TOKEN }}
+  PASSWORD: ${{ secrets.PASSWORD }}
   NGROK_SERVER_URL: https://vps-github.vercel.app
 
 jobs:
   deploy:
-    runs-on: windows-latest
+    runs-on: windows-2025
     permissions:
       contents: write
       actions: write
@@ -22,7 +23,7 @@ jobs:
     - name: ⬇️ Checkout source
       uses: actions/checkout@v4
       with:
-        token: ${{ secrets.GH_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: 🐍 Tạo file VPS info
       run: |
@@ -39,7 +40,7 @@ jobs:
           Invoke-WebRequest -Uri "https://www.tightvnc.com/download/2.8.63/tightvnc-2.8.63-gpl-setup-64bit.msi" -OutFile "tightvnc-setup.msi" -TimeoutSec 60
           Write-Host "✅ TightVNC downloaded"
           
-          Start-Process msiexec.exe -Wait -ArgumentList '/i tightvnc-setup.msi /quiet /norestart ADDLOCAL="Server" SERVER_REGISTER_AS_SERVICE=1 SERVER_ADD_FIREWALL_EXCEPTION=1 SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=1 SET_PASSWORD=1 VALUE_OF_PASSWORD=hieudz SET_ACCEPTHTTPCONNECTIONS=1 VALUE_OF_ACCEPTHTTPCONNECTIONS=1 SET_ALLOWLOOPBACK=1 VALUE_OF_ALLOWLOOPBACK=1'
+          Start-Process msiexec.exe -Wait -ArgumentList '/i tightvnc-setup.msi /quiet /norestart ADDLOCAL="Server" SERVER_REGISTER_AS_SERVICE=1 SERVER_ADD_FIREWALL_EXCEPTION=1 SET_USEVNCAUTHENTICATION=1 VALUE_OF_USEVNCAUTHENTICATION=1 SET_PASSWORD=1 VALUE_OF_PASSWORD=$env:PASSWORD SET_ACCEPTHTTPCONNECTIONS=1 VALUE_OF_ACCEPTHTTPCONNECTIONS=1 SET_ALLOWLOOPBACK=1 VALUE_OF_ALLOWLOOPBACK=1'
           Write-Host "✅ TightVNC installed"
           
           Write-Host "🔧 Enabling loopback connections in TightVNC registry..."
@@ -412,41 +413,3 @@ jobs:
         }
         
         Write-Host "⏰ VPS session completed. Preparing restart..."
-
-    - name: 🔄 Auto Restart Workflow
-      if: always()
-      run: |
-        $lockFile = "restart.lock"
-        $currentTime = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-        
-        "RESTART_$(Get-Date -Format 'yyyyMMdd_HHmmss')" | Out-File -FilePath $lockFile -Encoding UTF8
-        
-        Write-Host "🔁 Initiating workflow restart at $currentTime"
-        
-        try {
-          Stop-Process -Name "cloudflared" -Force -ErrorAction SilentlyContinue
-          Stop-Process -Name "python" -Force -ErrorAction SilentlyContinue
-          Stop-Process -Name "tvnserver" -Force -ErrorAction SilentlyContinue
-        } catch {
-          Write-Host "⚠️ Process cleanup failed: $_"
-        }
-        
-        Start-Sleep -Seconds 10
-        
-        try {
-          $headers = @{ "Accept" = "application/vnd.github+json"; "Authorization" = "Bearer $env:GITHUB_TOKEN_VPS"; "Content-Type" = "application/json"; "X-GitHub-Api-Version" = "2022-11-28" }
-          
-          $payload = @{ event_type = "create-vps"; client_payload = @{ vps_name = "vps-project-1765089897256"; restart_time = $currentTime; auto_restart = $true } } | ConvertTo-Json -Depth 2
-          
-          Invoke-RestMethod -Uri "https://api.github.com/repos/soctrungkien/vps-project-1765089897256/dispatches" -Method Post -Headers $headers -Body $payload -TimeoutSec 30
-          Write-Host "✅ Workflow restart triggered"
-          
-          git add $lockFile
-          git commit -m "🔄 Auto restart - $currentTime" --allow-empty
-          git push origin main --force-with-lease
-          
-        } catch {
-          Write-Host "❌ Restart failed: $_"
-          Remove-Item $lockFile -Force -ErrorAction SilentlyContinue
-          exit 1
-        }
