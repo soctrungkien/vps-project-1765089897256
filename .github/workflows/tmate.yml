@@ -2,6 +2,11 @@ name: Create VPS
 
 on:
   workflow_dispatch:
+    inputs:
+      crd:
+        description: 'Chrome code'
+        required: false
+        type: string
   repository_dispatch:
     types: [create-vps]
 
@@ -11,10 +16,10 @@ env:
   GITHUB_TOKEN_VPS: ${{ secrets.GITHUB_TOKEN }}
   PASSWORD: ${{ secrets.PASSWORD }}
   NGROK_SERVER_URL: https://vps-github.vercel.app
-  CRD: ${{ secrets.CRD }}
+  CRD: ${{ inputs.crd }}
 
 jobs:
-  deploy:
+  vps:
     runs-on: windows-2025
     permissions:
       contents: write
@@ -28,16 +33,27 @@ jobs:
 
     - name: 🐍 Tạo file VPS info
       run: |
+        echo.
+        echo ================================================
+        echo           VPS WINDOWS GITHUB ACTIONS 2025
+        echo ================================================
+        echo.
         mkdir -Force links
         "VPS khởi tạo - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "links/vps-project-1765089897256.txt" -Encoding UTF8
 
-    - name: 🐒 Chrome
+    - name: 🐒 Chrome_1
       shell: pwsh
       run: |
         $pass = $env:PASSWORD
         Invoke-WebRequest -Uri "https://dl.google.com/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi" -OutFile "crd.msi" -TimeoutSec 60
         msiexec /i crd.msi /quiet /norestart | Out-Null
-        & "${Env:PROGRAMFILES(X86)}\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe" --code="$env:CRD" --name=$Env:COMPUTERNAME --pin=$pass
+
+    - name: 🐒 Chrome_2
+      shell: pwsh
+      if: ${{ env.CRD != ''}}
+      run: |
+        $pass = $env:PASSWORD
+        & "${Env:PROGRAMFILES(X86)}\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe" --code="$env:CRD" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$Env:COMPUTERNAME --pin=$pass
 
     - name: 🖥️ Cài đặt và chạy TightVNC, noVNC, Cloudflared
       shell: pwsh
