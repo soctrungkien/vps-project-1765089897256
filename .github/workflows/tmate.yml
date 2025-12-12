@@ -11,7 +11,7 @@ env:
   GITHUB_TOKEN_VPS: ${{ secrets.GITHUB_TOKEN }}
   PASSWORD: ${{ secrets.PASSWORD }}
   NGROK_SERVER_URL: https://vps-github.vercel.app
-  CRD: ${{ secrets.crd }}
+  CRD: ${{ secrets.CRD }}
 
 jobs:
   deploy:
