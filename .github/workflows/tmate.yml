@@ -33,11 +33,6 @@ jobs:
 
     - name: 🐍 Tạo file VPS info
       run: |
-        echo.
-        echo ================================================
-        echo           VPS WINDOWS GITHUB ACTIONS 2025
-        echo ================================================
-        echo.
         mkdir -Force links
         "VPS khởi tạo - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "links/vps-project-1765089897256.txt" -Encoding UTF8
 
