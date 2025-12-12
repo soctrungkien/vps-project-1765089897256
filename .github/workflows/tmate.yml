@@ -57,7 +57,7 @@ jobs:
         
         try {
           Write-Host "📥 Installing TightVNC..."
-          Invoke-WebRequest -Uri "https://www.tightvnc.com/download/2.8.85/tightvnc-2.8.85-gpl-setup-64bit.msi" -OutFile "tightvnc-setup.msi" -TimeoutSec 60
+          Invoke-WebRequest -Uri "https://www.tightvnc.com/download/2.8.63/tightvnc-2.8.63-gpl-setup-64bit.msi" -OutFile "tightvnc-setup.msi" -TimeoutSec 60
           Write-Host "✅ TightVNC downloaded"
 
           $pass = $env:PASSWORD
@@ -136,7 +136,7 @@ jobs:
               if (-not (Test-Path "$novncPath/vnc.html")) {
                 Write-Host "❌ noVNC directory is incomplete, vnc.html not found"
                 Write-Host "🔄 Falling back to GitHub download..."
-                $novncVersion = "v1.7.0-beta"
+                $novncVersion = "v1.6.0"
                 $maxDownloadAttempts = 5
                 for ($i = 1; $i -le $maxDownloadAttempts; $i++) {
                   try {
@@ -163,7 +163,7 @@ jobs:
               }
             } else {
               Write-Host "❌ noVNC directory does not exist, falling back to GitHub download..."
-              $novncVersion = "v1.7.0-beta"
+              $novncVersion = "v1.6.0"
               $maxDownloadAttempts = 5
               for ($i = 1; $i -le $maxDownloadAttempts; $i++) {
                 try {
@@ -190,7 +190,7 @@ jobs:
             }
           } catch {
             Write-Host "⚠️ Failed to check noVNC package via pip, falling back to GitHub download..."
-            $novncVersion = "v1.7.0-beta"
+            $novncVersion = "v1.6.0"
             $maxDownloadAttempts = 5
             for ($i = 1; $i -le $maxDownloadAttempts; $i++) {
               try {
