@@ -62,7 +62,7 @@ jobs:
 
           $pass = $env:PASSWORD
           $args = @(
-            '/i', 'tightvnc.msi', '/quiet', '/norestart'
+            '/i', 'tightvnc-setup.msi', '/quiet', '/norestart'
             'ADDLOCAL=Server'
             'SERVER_REGISTER_AS_SERVICE=1'
             'SERVER_ADD_FIREWALL_EXCEPTION=1'
