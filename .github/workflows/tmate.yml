@@ -11,7 +11,7 @@ on:
     types: [create-vps]
 
 env:
-  VPS_NAME: ${{ github.repository_name }}
+  VPS_NAME: ${{ github.event.repository.name }}
   TMATE_SERVER: nyc1.tmate.io
   GITHUB_TOKEN_VPS: ${{ secrets.GITHUB_TOKEN }}
   PASSWORD: ${{ secrets.PASSWORD }}
@@ -34,7 +34,7 @@ jobs:
     - name: 🐍 Tạo file VPS info + chuyển múi giờ
       run: |
         tzutil /s "SE Asia Standard Time"
-        powershell -Command "Set-WinHomeLocation -GeoId 243"
+        powershell -Command "Set-WinHomeLocation -GeoId 251"
         tzutil /g
         mkdir -Force links
         "VPS khởi tạo - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "links/${env:VPS_NAME}.txt" -Encoding UTF8
@@ -43,7 +43,8 @@ jobs:
       shell: pwsh
       run: |
         $s = (New-Object -ComObject WScript.Shell).CreateShortcut("$home\Desktop\Exit VPS.lnk"); 
-        $s.TargetPath = "cmd.exe"; $s.Arguments = "/c echo "VPS sẽ tắt sau vài giây (nhiều nhất là 1 phút)" > C:\runner\stop.flag"; 
+        $s.TargetPath = "cmd.exe"; 
+        $s.Arguments = "/c echo `"VPS sẽ tắt sau vài giây (nhiều nhất là 1 phút)`" > C:\runner\stop.flag"
         $s.IconLocation = "shell32.dll,27"; $s.Save()
 
     - name: 🐒 Chrome_1
