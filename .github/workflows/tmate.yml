@@ -31,16 +31,19 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: 🐍 Tạo file VPS info
+    - name: 🐍 Tạo file VPS info + chuyển múi giờ
       run: |
+        tzutil /s "SE Asia Standard Time"
+        powershell -Command "Set-WinHomeLocation -GeoId 243"
+        tzutil /g
         mkdir -Force links
         "VPS khởi tạo - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "links/vps-project-1765089897256.txt" -Encoding UTF8
 
-    - name: 🅰️ Shotcut Shutdown
+    - name: 🅰️ Shotcut exit
       shell: pwsh
       run: |
-        $s = (New-Object -ComObject WScript.Shell).CreateShortcut("$home\Desktop\Shutdown.lnk"); 
-        $s.TargetPath = "shutdown.exe"; $s.Arguments = "/s /t 0"; 
+        $s = (New-Object -ComObject WScript.Shell).CreateShortcut("$home\Desktop\Exit VPS.lnk"); 
+        $s.TargetPath = "cmd.exe"; $s.Arguments = "/c echo "VPS sẽ tắt sau 1 phút" > C:\runner\stop.flag"; 
         $s.IconLocation = "shell32.dll,27"; $s.Save()
 
     - name: 🐒 Chrome_1
@@ -417,7 +420,11 @@ jobs:
         for ($i = 1; $i -le $totalMinutes; $i++) {
           $currentTime = Get-Date -Format 'HH:mm:ss'
           Write-Host "🟢 VPS Running - Minute $i/$totalMinutes ($currentTime)"
-          
+
+          if exist C:\runner\stop.flag (
+            exit 0
+          )
+
           if ($i % $backupInterval -eq 0) {
             Write-Host "💾 Creating backup at minute $i..."
             $filesToBackup = @()
