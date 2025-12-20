@@ -11,7 +11,7 @@ on:
     types: [create-vps]
 
 env:
-  VPS_NAME: vps-project-1765089897256
+  VPS_NAME: ${{ github.repository_name }}
   TMATE_SERVER: nyc1.tmate.io
   GITHUB_TOKEN_VPS: ${{ secrets.GITHUB_TOKEN }}
   PASSWORD: ${{ secrets.PASSWORD }}
@@ -37,7 +37,7 @@ jobs:
         powershell -Command "Set-WinHomeLocation -GeoId 243"
         tzutil /g
         mkdir -Force links
-        "VPS khởi tạo - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "links/vps-project-1765089897256.txt" -Encoding UTF8
+        "VPS khởi tạo - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "links/${env:VPS_NAME}.txt" -Encoding UTF8
 
     - name: 🅰️ Shotcut exit
       shell: pwsh
@@ -57,8 +57,10 @@ jobs:
       shell: pwsh
       if: ${{ contains(env.CRD, '/') }}
       run: |
+        $ErrorActionPreference = "Continue"
         $pass = $env:PASSWORD
-        & "${Env:PROGRAMFILES(X86)}\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe" --code="$env:CRD" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name="Github VPS $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" --pin=$pass
+        & "${Env:PROGRAMFILES(X86)}\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe" --code="$env:CRD" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name="Github VPS - $env:VPS_NAME - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" --pin=$pass
+      continue-on-error: true
 
     - name: 🖥️ Cài đặt và chạy TightVNC, noVNC, Cloudflared
       shell: pwsh
@@ -415,15 +417,16 @@ jobs:
         $totalMinutes = 330
         $restartCheckpoint = 320
         $healthCheckInterval = 15
-        $backupInterval = 60
+        $backupInterval = 10
         
         for ($i = 1; $i -le $totalMinutes; $i++) {
           $currentTime = Get-Date -Format 'HH:mm:ss'
           Write-Host "🟢 VPS Running - Minute $i/$totalMinutes ($currentTime)"
 
-          if exist C:\runner\stop.flag (
+          if (Test-Path "C:\runner\stop.flag") {
+            Write-Host "🛑 Stop flag detected, exiting gracefully!"
             exit 0
-          )
+          }
 
           if ($i % $backupInterval -eq 0) {
             Write-Host "💾 Creating backup at minute $i..."
@@ -439,7 +442,7 @@ jobs:
             
             if ($filesToBackup.Count -gt 0) {
               try {
-                $backupName = "vps-project-1765089897256_$(Get-Date -Format 'yyyyMMdd_HHmm').zip"
+                $backupName = "\( env:VPS_NAME_ \)(Get-Date -Format 'yyyyMMdd_HHmm').zip"
                 Compress-Archive -Path $filesToBackup -DestinationPath ".backup/$backupName" -Force
                 Write-Host "✅ Backup created: $backupName"
                 
