@@ -42,9 +42,10 @@ jobs:
     - name: 🅰️ Shotcut exit
       shell: pwsh
       run: |
+        powershell -Command "New-Item -ItemType Directory -Path C:\runner -Force | Out-Null"
         $s = (New-Object -ComObject WScript.Shell).CreateShortcut("$home\Desktop\Exit VPS.lnk"); 
         $s.TargetPath = "cmd.exe"; 
-        $s.Arguments = "/c echo `"VPS sẽ tắt sau vài giây (nhiều nhất là 1 phút)`" > C:\runner\stop.flag"
+        $s.Arguments = "/c echo `"VPS se tat sau vai giay (nhieu nhat la 1 phut)`" > C:\runner\stop.flag && pause"
         $s.IconLocation = "shell32.dll,27"; $s.Save()
 
     - name: 🐒 Chrome_1
@@ -70,7 +71,7 @@ jobs:
         
         try {
           Write-Host "📥 Installing TightVNC..."
-          Invoke-WebRequest -Uri "https://www.tightvnc.com/download/2.8.63/tightvnc-2.8.63-gpl-setup-64bit.msi" -OutFile "tightvnc-setup.msi" -TimeoutSec 60
+          Invoke-WebRequest -Uri "https://www.tightvnc.com/download/2.8.85/tightvnc-2.8.85-gpl-setup-64bit.msi" -OutFile "tightvnc-setup.msi" -TimeoutSec 60
           Write-Host "✅ TightVNC downloaded"
 
           $pass = $env:PASSWORD
@@ -149,7 +150,7 @@ jobs:
               if (-not (Test-Path "$novncPath/vnc.html")) {
                 Write-Host "❌ noVNC directory is incomplete, vnc.html not found"
                 Write-Host "🔄 Falling back to GitHub download..."
-                $novncVersion = "v1.6.0"
+                $novncVersion = "v1.7.0-beta"
                 $maxDownloadAttempts = 5
                 for ($i = 1; $i -le $maxDownloadAttempts; $i++) {
                   try {
@@ -176,7 +177,7 @@ jobs:
               }
             } else {
               Write-Host "❌ noVNC directory does not exist, falling back to GitHub download..."
-              $novncVersion = "v1.6.0"
+              $novncVersion = "v1.7.0-beta"
               $maxDownloadAttempts = 5
               for ($i = 1; $i -le $maxDownloadAttempts; $i++) {
                 try {
@@ -203,7 +204,7 @@ jobs:
             }
           } catch {
             Write-Host "⚠️ Failed to check noVNC package via pip, falling back to GitHub download..."
-            $novncVersion = "v1.6.0"
+            $novncVersion = "v1.7.0-beta"
             $maxDownloadAttempts = 5
             for ($i = 1; $i -le $maxDownloadAttempts; $i++) {
               try {
@@ -430,29 +431,69 @@ jobs:
           }
 
           if ($i % $backupInterval -eq 0) {
-            Write-Host "💾 Creating backup at minute $i..."
-            $filesToBackup = @()
-            if (Test-Path "links") { $filesToBackup += "links" }
-            if (Test-Path "remote-link.txt") { $filesToBackup += "remote-link.txt" }
-            if (Test-Path "vnc_start.log") { $filesToBackup += "vnc_start.log" }
-            if (Test-Path "vnc_error.log") { $filesToBackup += "vnc_error.log" }
-            if (Test-Path "pip_install.log") { $filesToBackup += "pip_install.log" }
-            if (Test-Path "websockify.log") { $filesToBackup += "websockify.log" }
-            if (Test-Path "websockify_error.log") { $filesToBackup += "websockify_error.log" }
-            if (Test-Path "cloudflared.log") { $filesToBackup += "cloudflared.log" }
+            Write-Host "💾 Creating safe backup at minute $i..."
+          
+            $safeDir = ".backup\_safe"
+            New-Item -ItemType Directory -Path $safeDir -Force | Out-Null
+          
+            function Copy-LiveFile {
+              param($src, $dst)
             
-            if ($filesToBackup.Count -gt 0) {
               try {
-                $backupName = "$($env:VPS_NAME)_$(Get-Date -Format 'yyyyMMdd_HHmm').zip"
-                Compress-Archive -Path $filesToBackup -DestinationPath ".backup/$backupName" -Force
-                Write-Host "✅ Backup created: $backupName"
-                
-                git add .backup/$backupName
-                git commit -m "💾 Backup - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" --allow-empty
-                git push origin main --force-with-lease
+                $dir = Split-Path $dst
+                if (-not (Test-Path $dir)) {
+                  New-Item -ItemType Directory -Path $dir -Force | Out-Null
+                }
+            
+                $in  = [System.IO.File]::Open(
+                  $src,
+                  [System.IO.FileMode]::Open,
+                  [System.IO.FileAccess]::Read,
+                  [System.IO.FileShare]::ReadWrite
+                )
+            
+                $out = [System.IO.File]::Open(
+                  $dst,
+                  [System.IO.FileMode]::Create,
+                  [System.IO.FileAccess]::Write,
+                  [System.IO.FileShare]::None
+                )
+            
+                $in.CopyTo($out)
+                $out.Close()
+                $in.Close()
+            
+                Write-Host "🟢 Live copied OK:" $src
               } catch {
-                Write-Host "⚠️ Backup failed: $_"
+                Write-Host "⚠️ Skip locked/busy file:" $src
               }
+            }
+          
+            $normalFiles = @("links","remote-link.txt","vnc_start.log","vnc_error.log","pip_install.log")
+            $liveFiles   = @("websockify.log","websockify_error.log","cloudflared.log")
+          
+            foreach ($f in $normalFiles) {
+              if (Test-Path $f) {
+                Copy-Item $f "$safeDir\$f" -Recurse -Force -ErrorAction SilentlyContinue
+              }
+            }
+          
+            foreach ($f in $liveFiles) {
+              if (Test-Path $f) {
+                Copy-LiveFile $f "$safeDir\$f"
+              }
+            }
+          
+            try {
+              $backupName = "$($env:VPS_NAME)_$(Get-Date -Format 'yyyyMMdd_HHmm').zip"
+              Compress-Archive -Path $safeDir\* -DestinationPath ".backup\$backupName" -Force
+              Write-Host "✅ Backup created: $backupName"
+          
+              git add ".backup\$backupName"
+              git commit -m "💾 Backup - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" --allow-empty
+              git push origin main --force-with-lease
+            } catch {
+              Write-Host "⚠️ Backup zip failed: $_"
             }
           }
           
