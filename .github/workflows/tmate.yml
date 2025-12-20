@@ -43,7 +43,7 @@ jobs:
       shell: pwsh
       run: |
         $s = (New-Object -ComObject WScript.Shell).CreateShortcut("$home\Desktop\Exit VPS.lnk"); 
-        $s.TargetPath = "cmd.exe"; $s.Arguments = "/c echo "VPS sẽ tắt sau 1 phút" > C:\runner\stop.flag"; 
+        $s.TargetPath = "cmd.exe"; $s.Arguments = "/c echo "VPS sẽ tắt sau vài giây (nhiều nhất là 1 phút)" > C:\runner\stop.flag"; 
         $s.IconLocation = "shell32.dll,27"; $s.Save()
 
     - name: 🐒 Chrome_1
@@ -442,7 +442,7 @@ jobs:
             
             if ($filesToBackup.Count -gt 0) {
               try {
-                $backupName = "\( env:VPS_NAME_ \)(Get-Date -Format 'yyyyMMdd_HHmm').zip"
+                $backupName = "$($env:VPS_NAME)_$(Get-Date -Format 'yyyyMMdd_HHmm').zip"
                 Compress-Archive -Path $filesToBackup -DestinationPath ".backup/$backupName" -Force
                 Write-Host "✅ Backup created: $backupName"
                 
