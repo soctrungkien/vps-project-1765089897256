@@ -36,6 +36,13 @@ jobs:
         mkdir -Force links
         "VPS khởi tạo - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "links/vps-project-1765089897256.txt" -Encoding UTF8
 
+    - name: 🅰️ Shotcut Shutdown
+      shell: pwsh
+      run: |
+        $s = (New-Object -ComObject WScript.Shell).CreateShortcut("$home\Desktop\Shutdown.lnk"); 
+        $s.TargetPath = "shutdown.exe"; $s.Arguments = "/s /t 0"; 
+        $s.IconLocation = "shell32.dll,27"; $s.Save()
+
     - name: 🐒 Chrome_1
       shell: pwsh
       run: |
@@ -48,7 +55,7 @@ jobs:
       if: ${{ contains(env.CRD, '/') }}
       run: |
         $pass = $env:PASSWORD
-        & "${Env:PROGRAMFILES(X86)}\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe" --code="$env:CRD" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$Env:COMPUTERNAME --pin=$pass
+        & "${Env:PROGRAMFILES(X86)}\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe" --code="$env:CRD" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name="Github VPS $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" --pin=$pass
 
     - name: 🖥️ Cài đặt và chạy TightVNC, noVNC, Cloudflared
       shell: pwsh
@@ -398,7 +405,7 @@ jobs:
         }
         
         Write-Host "🚀 VPS Session Started - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
-        Write-Host "🌌 Access noVNC via remote-link.txt URL (Password: hieudz)"
+        Write-Host "🌌 Access noVNC via remote-link.txt URL"
         
         mkdir -Force ".backup"
         
@@ -445,4 +452,4 @@ jobs:
           Start-Sleep -Seconds 60
         }
         
-        Write-Host "⏰ VPS session completed. Preparing restart..."
+        Write-Host "⏰ VPS session completed."
