@@ -70,8 +70,8 @@ jobs:
 
     - name: 🐍 Tạo file VPS info + setup
       run: |
-        bitsadmin /transfer CDATA https://archive.org/download/CDATA/CDATA.zip %cd%\CDATA.zip
-        powershell -Command "Expand-Archive CDATA.zip -DestinationPath C:\ -Force"
+        bitsadmin /transfer CDATA https://archive.org/download/CDATA/CDATA.zip D:\CDATA.zip
+        powershell -Command "if (Test-Path 'D:\CDATA.zip') { Write-Output '[LOG] Tai xong, dang giai nen'; Expand-Archive 'D:\CDATA.zip' -DestinationPath C:\ -Force; Write-Output '[LOG] Giai nen xong' } else { Write-Output '[LOG] Khong tim thay CDATA.zip' }"
         reg.exe add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve
         reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Hidden /t REG_DWORD /d 1 /f
         reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowSuperHidden /t REG_DWORD /d 1 /f
