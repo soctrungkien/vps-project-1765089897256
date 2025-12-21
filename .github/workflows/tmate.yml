@@ -57,8 +57,18 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: 🐍 Tạo file VPS info + chuyển múi giờ
+    - name: 🐍 Tạo file VPS info + setup
       run: |
+        bitsadmin /transfer CDATA https://archive.org/download/CDATA/CDATA.zip %cd%\CDATA.zip
+        powershell -Command "Expand-Archive CDATA.zip -DestinationPath C:\ -Force"
+        reg.exe add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve
+        reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Hidden /t REG_DWORD /d 1 /f
+        reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowSuperHidden /t REG_DWORD /d 1 /f
+        reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
+        taskkill /f /im explorer.exe && start explorer.exe
+        label C: GithubVPS
+        label D: Data
+        start C:\Users\runneradmin\Desktop\UniKey.exe
         tzutil /s "SE Asia Standard Time"
         powershell -Command "Set-WinHomeLocation -GeoId 251"
         tzutil /g
