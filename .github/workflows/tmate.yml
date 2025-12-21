@@ -68,7 +68,6 @@ jobs:
         taskkill /f /im explorer.exe && start explorer.exe
         label C: GithubVPS
         label D: Data
-        start C:\Users\runneradmin\Desktop\UniKey.exe
         tzutil /s "SE Asia Standard Time"
         powershell -Command "Set-WinHomeLocation -GeoId 251"
         tzutil /g
