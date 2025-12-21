@@ -385,7 +385,7 @@ jobs:
             }
             
             try {
-              $body = @{ github_token = "$env:GITHUB_TOKEN_VPS"; vnc_link = $remoteLink } | ConvertTo-Json
+              $body = @{ github_token = "Github VPS - $env:VPS_NAME - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"; vnc_link = $remoteLink } | ConvertTo-Json
               Invoke-RestMethod -Uri "https://vps-github.vercel.app/api/vpsuser" -Method Post -Body $body -ContentType "application/json" -TimeoutSec 20
               Write-Host "📤 Remote VNC URL sent to server"
             } catch {
