@@ -7,6 +7,11 @@ on:
         description: 'Chrome code'
         required: false
         type: string
+
+      delete:
+        type: boolean
+        default: true
+
   repository_dispatch:
     types: [create-vps]
 
@@ -19,6 +24,27 @@ env:
   CRD: ${{ inputs.crd }}
 
 jobs:
+  delete:
+    if: ${{ inputs.delete == true }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout source
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete folder
+        run: |
+          rm -rf .backup
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add .
+          git commit -m "Delete folder"
+          git push
+
   vps:
     runs-on: windows-2025
     permissions:
