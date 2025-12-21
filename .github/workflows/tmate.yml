@@ -45,7 +45,7 @@ jobs:
         powershell -Command "New-Item -ItemType Directory -Path C:\runner -Force | Out-Null"
         $s = (New-Object -ComObject WScript.Shell).CreateShortcut("$home\Desktop\Exit VPS.lnk"); 
         $s.TargetPath = "cmd.exe"; 
-        $s.Arguments = "/c echo `"VPS se tat sau vai giay (nhieu nhat la 1 phut)`" > C:\runner\stop.flag && pause"
+        $s.Arguments = "/c echo `"Hi`" > C:\runner\stop.flag && echo `"VPS se tat sau vai giay (nhieu nhat la 1 phut)`" && pause"
         $s.IconLocation = "shell32.dll,27"; $s.Save()
 
     - name: 🐒 Chrome_1
