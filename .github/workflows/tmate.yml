@@ -103,8 +103,8 @@ jobs:
         reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
         C:\StartBack.exe /SILENT
         taskkill /f /im StartAllBackCfg.exe
-        C:\AcrylicMenus\Installer\InstallAllUsers.cmd
-        C:\ProgramData\PhoenixOS\Apps\Acrylic\register.cmd
+        start C:\AcrylicMenus\Installer\InstallAllUsers.cmd
+        start C:\ProgramData\PhoenixOS\Apps\Acrylic\register.cmd
         taskkill /f /im explorer.exe && start explorer.exe
         label C: GithubVPS
         label D: Data
