@@ -72,16 +72,42 @@ jobs:
       run: |
         bitsadmin /transfer CDATA https://archive.org/download/CDATA/CDATA.zip D:\CDATA.zip
         powershell -Command "if (Test-Path 'D:\CDATA.zip') { Write-Output '[LOG] Tai xong, dang giai nen'; Expand-Archive 'D:\CDATA.zip' -DestinationPath C:\ -Force; Write-Output '[LOG] Giai nen xong' } else { Write-Output '[LOG] Khong tim thay CDATA.zip' }"
+        tzutil /s "SE Asia Standard Time"
+        powershell -Command "Set-WinHomeLocation -GeoId 251"
+        tzutil /g
+        reg add "HKCU\Control Panel\Desktop" /v PaintDesktopVersion /t REG_DWORD /d 0 /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "AutoUpdates" /t REG_DWORD /d "0" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "WinBuild" /t REG_DWORD /d "26100" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "WinLangID" /t REG_DWORD /d "1033" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "SettingsVersion" /t REG_DWORD /d "6" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "WelcomeShown" /t REG_DWORD /d "3" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "UpdateCheck" /t REG_BINARY /d "9597b1df2573dc01" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "FrameStyle" /t REG_DWORD /d "1" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "TaskbarLargerIcons" /t REG_DWORD /d "0" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "TaskbarSpacierIcons" /t REG_DWORD /d "4294967295" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "TaskbarOneSegment" /t REG_DWORD /d "0" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "TaskbarCenterIcons" /t REG_DWORD /d "0" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "FatTaskbar" /t REG_DWORD /d "1" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "TaskbarTranslucentEffect" /t REG_DWORD /d "1" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "SysTraySpacierIcons" /t REG_DWORD /d "1" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "TaskbarControlCenter" /t REG_DWORD /d "1" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "SysTrayInputSwitch" /t REG_DWORD /d "0" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "SysTrayPower" /t REG_DWORD /d "0" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "SysTrayMicrophone" /t REG_DWORD /d "0" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "SysTrayLocation" /t REG_DWORD /d "0" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "RestyleControls" /t REG_DWORD /d "0" /f
+        Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack\Recolor" /f
         reg.exe add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /f /ve
         reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Hidden /t REG_DWORD /d 1 /f
         reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowSuperHidden /t REG_DWORD /d 1 /f
         reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
+        C:\StartBack.exe /SILENT
+        taskkill /f /im StartAllBackCfg.exe
+        C:\AcrylicMenus\Installer\InstallAllUsers.cmd
+        C:\ProgramData\PhoenixOS\Apps\Acrylic\register.cmd
         taskkill /f /im explorer.exe && start explorer.exe
         label C: GithubVPS
         label D: Data
-        tzutil /s "SE Asia Standard Time"
-        powershell -Command "Set-WinHomeLocation -GeoId 251"
-        tzutil /g
         mkdir -Force links
         "VPS khởi tạo - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" | Out-File -FilePath "links/${env:VPS_NAME}.txt" -Encoding UTF8
 
