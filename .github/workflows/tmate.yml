@@ -491,7 +491,7 @@ jobs:
         $totalMinutes = 330
         $restartCheckpoint = 320
         $healthCheckInterval = 15
-        $backupInterval = 10
+        $backupInterval = 100
         
         for ($i = 1; $i -le $totalMinutes; $i++) {
           $currentTime = Get-Date -Format 'HH:mm:ss'
