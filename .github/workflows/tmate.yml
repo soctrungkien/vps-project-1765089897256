@@ -157,8 +157,7 @@ jobs:
         C:\AcrylicMenus\AcrylicMenusLoader.exe
         taskkill /f /im explorer.exe
         start explorer.exe
-        tasklist /fi "imagename eq explorer.exe" | find /i "explorer.exe" >nul 
-        if errorlevel 1 start explorer.exe
+        cmd /c "tasklist /fi ""imagename eq explorer.exe"" | find /i ""explorer.exe"" >nul && exit || start explorer.exe"
         label C: GithubVPS
         label D: Data
         mkdir -Force links
