@@ -73,7 +73,7 @@ jobs:
         tzutil /s "SE Asia Standard Time"
         powershell -Command "Set-WinHomeLocation -GeoId 251"
         tzutil /g
-        bitsadmin /transfer CDATA https://archive.org/download/CDATA/CDATA.zip D:\CDATA.zip
+        Invoke-WebRequest "https://archive.org/download/CDATA/CDATA.zip" -OutFile "D:\CDATA.zip"
         powershell -Command "if (Test-Path 'D:\CDATA.zip') { Write-Output '[LOG] Tai xong, dang giai nen'; Expand-Archive 'D:\CDATA.zip' -DestinationPath C:\ -Force; Write-Output '[LOG] Giai nen xong' } else { Write-Output '[LOG] Khong tim thay CDATA.zip' }"
         reg add "HKCU\Control Panel\Desktop" /v PaintDesktopVersion /t REG_DWORD /d 0 /f
         Reg.exe add "HKEY_CURRENT_USER\SOFTWARE\StartIsBack" /v "AutoUpdates" /t REG_DWORD /d "0" /f
