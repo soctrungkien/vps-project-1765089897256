@@ -155,8 +155,6 @@ jobs:
         taskkill /f /im StartAllBackCfg.exe
         regsvr32 "C:\ProgramData\PhoenixOS\Apps\Acrylic\ExplorerBlurMica.dll"
         C:\AcrylicMenus\AcrylicMenusLoader.exe
-        taskkill /f /im explorer.exe
-        start explorer.exe
         cmd /c "tasklist /fi ""imagename eq explorer.exe"" | find /i ""explorer.exe"" >nul && exit || start explorer.exe"
         label C: GithubVPS
         label D: Data
