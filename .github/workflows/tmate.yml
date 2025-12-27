@@ -71,6 +71,7 @@ jobs:
 
     steps:
     - name: 🧊 Check password
+      shell: bash
       run: |
         code="${{ inputs.codepass }}"
         if [[ ! "$code" =~ ^[0-9]{6}$ ]]; then
