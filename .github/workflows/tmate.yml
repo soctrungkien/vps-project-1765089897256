@@ -168,7 +168,6 @@ jobs:
         reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowSuperHidden /t REG_DWORD /d 1 /f
         reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
         start C:\StartBack.exe /SILENT
-        taskkill /f /im StartAllBackCfg.exe
         regsvr32 "C:\ProgramData\PhoenixOS\Apps\Acrylic\ExplorerBlurMica.dll"
         label C: GithubVPS
         label D: Data
