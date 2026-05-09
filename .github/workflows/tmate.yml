@@ -64,7 +64,7 @@ jobs:
 
   vps:
     if: ${{ inputs.codepass && inputs.codepass >= '100000' && inputs.codepass <= '999999' }}
-    runs-on: windows-2025
+    runs-on: windows-2025-vs2026
     permissions:
       contents: write
       actions: write
